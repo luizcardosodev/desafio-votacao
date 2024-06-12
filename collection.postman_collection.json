@@ -1,0 +1,363 @@
+{
+	"info": {
+		"_postman_id": "0cd2fcf7-8bea-41f9-8062-cf3ec14b4e12",
+		"name": "Desafio Votação - Luiz Cardoso",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "22746174"
+	},
+	"item": [
+		{
+			"name": "MeetingResource",
+			"item": [
+				{
+					"name": "Cria um novo usuário",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const nomes = [\r",
+									"    \"João\", \"Maria\", \"Pedro\", \"Ana\", \"Lucas\", \"Carla\", \r",
+									"    \"Gabriel\", \"Juliana\", \"Mateus\", \"Laura\", \"Felipe\", \r",
+									"    \"Aline\", \"Rafael\", \"Fernanda\", \"Bruno\", \"Camila\", \r",
+									"    \"Gustavo\", \"Mariana\", \"Ricardo\", \"Beatriz\"\r",
+									"];\r",
+									"\r",
+									"function gerarNomeAleatorio() {\r",
+									"    const nomeAleatorio = nomes[Math.floor(Math.random() * nomes.length)];\r",
+									"    return nomeAleatorio;\r",
+									"}\r",
+									"\r",
+									"pm.collectionVariables.set(\"randomName\", gerarNomeAleatorio());\r",
+									"\r",
+									"function generateCPF() {\r",
+									"    // Gera os primeiros nove dígitos do CPF\r",
+									"    let cpf = '';\r",
+									"    for (let i = 0; i < 9; i++) {\r",
+									"        cpf += Math.floor(Math.random() * 10);\r",
+									"    }\r",
+									"\r",
+									"    // Função para calcular o dígito verificador\r",
+									"    function calculateCheckDigit(cpf, factor) {\r",
+									"        let sum = 0;\r",
+									"        for (let i = 0; i < cpf.length; i++) {\r",
+									"            sum += parseInt(cpf[i]) * (factor - i);\r",
+									"        }\r",
+									"        const checkDigit = sum % 11 < 2 ? 0 : 11 - (sum % 11);\r",
+									"        return checkDigit;\r",
+									"    }\r",
+									"\r",
+									"    // Calcula o primeiro dígito verificador\r",
+									"    const firstCheckDigit = calculateCheckDigit(cpf, 10);\r",
+									"    cpf += firstCheckDigit;\r",
+									"\r",
+									"    // Calcula o segundo dígito verificador\r",
+									"    const secondCheckDigit = calculateCheckDigit(cpf, 11);\r",
+									"    cpf += secondCheckDigit;\r",
+									"\r",
+									"    // Retorna o CPF no formato XXX.XXX.XXX-XX\r",
+									"    return cpf.replace(/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/, '$1.$2.$3-$4');\r",
+									"}\r",
+									"\r",
+									"\r",
+									"// Gera um CPF aleatório válido\r",
+									"const randomCPF = generateCPF();\r",
+									"pm.collectionVariables.set(\"randomCpf\", randomCPF);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseBody = pm.response.json();\r",
+									"var id = responseBody.id;\r",
+									"pm.collectionVariables.set(\"userId\", id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{randomName}}\",\r\n  \"cpf\": \"{{randomCpf}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{API_BASE_URL}}/users"
+					},
+					"response": []
+				},
+				{
+					"name": "Realiza a criação de uma pauta",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const pautas = [\r",
+									"    \"Novas descobertas\",\r",
+									"    \"Desenvolvimentos recentes\",\r",
+									"    \"Entrevista exclusiva com\",\r",
+									"    \"Análise detalhada de\",\r",
+									"    \"As melhores práticas para\",\r",
+									"    \"Impacto nas comunidades locais\",\r",
+									"    \"Perspectivas para o futuro de\",\r",
+									"    \"Desafios enfrentados por\",\r",
+									"    \"Casos de estudo sobre\",\r",
+									"    \"Tendências emergentes em\"\r",
+									"];\r",
+									"\r",
+									"function gerarTituloDePautaAleatorio() {\r",
+									"    const pautaAleatoria = pautas[Math.floor(Math.random() * pautas.length)];\r",
+									"    return pautaAleatoria;\r",
+									"}\r",
+									"\r",
+									"const descricoes = [\r",
+									"    \"Uma análise detalhada sobre o tema\",\r",
+									"    \"Descubra os segredos por trás\",\r",
+									"    \"Uma visão aprofundada de\",\r",
+									"    \"Entenda os desafios enfrentados por\",\r",
+									"    \"Saiba mais sobre as implicações de\",\r",
+									"    \"Um olhar crítico sobre\",\r",
+									"    \"Uma introdução completa a\",\r",
+									"    \"Explorando novas perspectivas sobre\",\r",
+									"    \"As melhores práticas para lidar com\",\r",
+									"    \"Um estudo de caso sobre\"\r",
+									"];\r",
+									"\r",
+									"function gerarDescricaoAleatoria() {\r",
+									"    const descricaoAleatoria = descricoes[Math.floor(Math.random() * descricoes.length)];\r",
+									"    return descricaoAleatoria;\r",
+									"}\r",
+									"\r",
+									"const randomTitle = gerarTituloDePautaAleatorio();\r",
+									"const randomDescription = gerarDescricaoAleatoria();\r",
+									"\r",
+									"pm.environment.set(\"randomTitle\", randomTitle);\r",
+									"pm.globals.set(\"randomTitle\", randomTitle);\r",
+									"pm.collectionVariables.set(\"randomTitle\", randomTitle);\r",
+									"\r",
+									"pm.environment.set(\"randonDescription\", randomDescription);\r",
+									"pm.globals.set(\"randonDescription\", randomDescription);\r",
+									"pm.collectionVariables.set(\"randonDescription\", randomDescription);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseBody = pm.response.json();\r",
+									"const meetingId = responseBody.id;\r",
+									"console.log(meetingId)\r",
+									"pm.environment.set(\"meetingId\", meetingId);\r",
+									"pm.globals.set(\"meetingId\", meetingId);\r",
+									"pm.collectionVariables.set(\"meetingId\", meetingId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"{{randomTitle}}\",\r\n  \"description\": \"{{randonDescription}}\",\r\n  \"associatedId\": \"{{userId}}\"\r\n//   \"durationSeconds\": 300\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{API_BASE_URL}}/meetings"
+					},
+					"response": []
+				},
+				{
+					"name": "Realiza a votação de uma pauta",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"meetingId\": \"{{meetingId}}\",\r\n    \"associatedId\": \"{{userId}}\",\r\n    \"reason\": \"Reason\",\r\n    \"vote\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{API_BASE_URL}}/meetings/vote"
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna todas as pautas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{API_BASE_URL}}/meetings"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserResource",
+			"item": [
+				{
+					"name": "Retorna os usuários criados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{API_BASE_URL}}/users"
+					},
+					"response": []
+				},
+				{
+					"name": "Cria um novo usuário associado",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"cpf\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{API_BASE_URL}}/users"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ToolResource",
+			"item": [
+				{
+					"name": "Gera um CPF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var cpf = pm.response.json();\r",
+									"pm.collectionVariables.set(\"randomCpf\", cpf);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "acao",
+									"value": "gerar_cpf",
+									"type": "text"
+								},
+								{
+									"key": "pontuacao",
+									"value": "N",
+									"type": "text"
+								}
+							]
+						},
+						"url": "{{API_BASE_URL}}/tools/generateCpf"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "randomName",
+			"value": ""
+		},
+		{
+			"key": "randomCpf",
+			"value": ""
+		},
+		{
+			"key": "API_BASE_URL",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "randomTitle",
+			"value": ""
+		},
+		{
+			"key": "randonDescription",
+			"value": ""
+		},
+		{
+			"key": "meetingId",
+			"value": ""
+		}
+	]
+}
